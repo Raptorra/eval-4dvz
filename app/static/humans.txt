@@ -1,0 +1,24 @@
+﻿/* TEAM */
+    Developer, Project Lead: François Gay
+    From: Faches Thumesnil, France
+
+    Developer, Front Wizard: Sullivan Fabre
+    From: Mazingarbe, France
+
+
+
+    Product Owner: Vincent Becquart
+    From: Lambersart, France
+
+/* THANKS */
+    Google App Engine developers and technical writers
+    Raphaël Doursenaud for his support and awesome knowledge
+    Python community
+
+/* SITE */
+    Name: "Contacts Sharing" project
+    Last Update: dev in progress
+    Standards: HTML5, CSS3
+    Software: GCP AppEngine, Google Cloud SDK, Python 2.7
+    Components: Bootstrap, DataTable, Popper.js, Material Design Lite, Flask, Jinja2
+    IDE: Pycharm

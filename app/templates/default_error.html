@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Application : Error{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1>An error occured : </h1>
+    {% if context and context.error %}
+        <h3>&lt;{{ context.error.__class__.__name__ }}&gt;</h3>
+        <p>message : {{ context.error.message }}</p>
+        {% if context.error.args %}
+        <p>args : {{ context.error.args[0] }}</p>
+        {% endif %}
+        {% if context.error.strerror %}
+        <p>error : {{ context.error.strerror }}</p>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}

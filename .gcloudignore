@@ -1,0 +1,25 @@
+.gcloudignore
+# If you would like to upload your .git directory, .gitignore file or
+# files from your .gitignore file, remove the corresponding line below:
+.git
+.gitignore
+
+.idea
+
+# Use scripts/test-skip-files.py to make sure your regexes do what you want!
+^(.*/)?#.*#$
+^(.*/)?.*~$
+^(.*/)?.*\.py[co]$
+^(.*/)?.*/RCS/.*$
+^(.*/)?\..*$
+^(.*/)?test_.*?\.py$
+# Skip all directories but those ending with
+# Look-behind requires fixed-width
+# [^/] is important and avoid matching files under the target directories
+^app/instances/((?!production|testing|recette).)*$  # All folders not named production
+^translations/.*?\.pot$
+^translations/.*/LC_MESSAGES/.*(?<!\.mo)$
+Scripts
+^README\.rst$
+venv
+Emulators

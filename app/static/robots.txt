@@ -1,0 +1,3 @@
+# Disallow indexing by all robots
+User-agent: *
+Disallow: /

@@ -1,0 +1,5 @@
+# Development requirements
+# Shipped libraries
+
+# External libraries (installed under /lib for production)
+-r gae-requirements.txt
