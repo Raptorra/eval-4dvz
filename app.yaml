@@ -56,20 +56,6 @@ handlers:
   http_headers:
     X-Robots-Tag: all
 
-- url: /privacy-policy
-  static_files: app/static/privacy-policy.html
-  upload: app/static/privacy-policy\.html
-  mime_type: 'text/html; charset=utf-8'
-  http_headers:
-    X-Robots-Tag: all
-
-- url: /terms-of-service
-  static_files: app/static/terms-of-service.html
-  upload: app/static/terms-of-services\.html
-  mime_type: 'text/html; charset=utf-8'
-  http_headers:
-    X-Robots-Tag: all
-
 - url: /admin/.*
   script: auto
   secure: always
