@@ -3,6 +3,23 @@
 {% block css %}
     {{ super() }}
     <style>
+        #regions_div {
+            margin: auto;
+        }
+        .title {
+            text-align: center;
+          	font-size: 15px;
+            text-transform: uppercase;
+            color: #2C3E50;
+            margin: 2rem;
+        }
+
+        .main {
+            font-weight: bold;
+            margin-top: 2rem;
+            font-size: 30px;
+        }
+
         svg {
             width: 100%;
             height: 100%;
@@ -17,16 +34,72 @@
             stroke-width: 3;
             stroke-dasharray: 3;
         }
+        .cards {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-wrap: wrap;
+          margin: 10px auto;
+          max-width: 1200px;
+        }
+
+      .card {
+        width: 300px;
+        max-width: 300px;
+        margin: 12px;
+        padding: 1.5rem;
+        color: #fff;
+        border-radius: 5px;
+        box-shadow: 7px 6px 26px -17px rgba(0, 0, 0, 1);
+        cursor: pointer;
+        transition: 0.3s all;
+      }
+
+        h3 {
+          font-size: 29px;
+        }
+        p {
+          font-size: 20px;
+        }
+
+    .confirmed {
+      background-color: #3498db;
+    }
+    .deaths {
+      background-color: #e74c3c;
+    }
+    .recovered {
+      background-color: #2ecc71;
+    }
+
+    .confirmed:hover, .deaths:hover, .recovered:hover {
+      transform: translateY(-4px);
+    }
+
+
+
     </style>
 {% endblock %}
 
 {% block content %}
     {{ super() }}
-    <p>Total confirmed: {{ context.latest.confirmed }}</p>
-    <p>Total deaths: {{ context.latest.deaths }}</p>
-    <p>Total recovered: {{ context.latest.recovered }}</p>
+    <h1 class="title main">Coronavirus Dashboard</h1>
+    <div class="cards">
+        <div class="card confirmed">
+          <h3 id="cases">Confirmed</h3>
+          <p>{{ context.latest.confirmed }}</p>
+        </div>
+        <div class="card deaths">
+          <h3 id="deaths">Deaths</h3>
+          <p>{{ context.latest.deaths }}</p>
+        </div>
+        <div class="card recovered">
+          <h3 id="recovered">Recovered</h3>
+          <p>{{ context.latest.recovered }}</p>
+        </div>
+      </div>
 
-    <h3>Confirmed cases around the world:</h3>
+    <h2 class="title">Confirmed cases around the world:</h2>
     <div id="regions_div" style="width: 900px; height: 500px;"></div>
 
     <div id="curve_chart" style="width: 900px; height: 500px"></div>
