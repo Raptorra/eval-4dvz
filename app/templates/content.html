@@ -6,9 +6,10 @@
         #regions_div {
             margin: auto;
         }
+
         .title {
             text-align: center;
-          	font-size: 15px;
+            font-size: 15px;
             text-transform: uppercase;
             color: #2C3E50;
             margin: 2rem;
@@ -34,48 +35,51 @@
             stroke-width: 3;
             stroke-dasharray: 3;
         }
+
         .cards {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          flex-wrap: wrap;
-          margin: 10px auto;
-          max-width: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 10px auto;
+            max-width: 1200px;
         }
 
-      .card {
-        width: 300px;
-        max-width: 300px;
-        margin: 12px;
-        padding: 1.5rem;
-        color: #fff;
-        border-radius: 5px;
-        box-shadow: 7px 6px 26px -17px rgba(0, 0, 0, 1);
-        cursor: pointer;
-        transition: 0.3s all;
-      }
+        .card {
+            width: 300px;
+            max-width: 300px;
+            margin: 12px;
+            padding: 1.5rem;
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 7px 6px 26px -17px rgba(0, 0, 0, 1);
+            cursor: pointer;
+            transition: 0.3s all;
+        }
 
         h3 {
-          font-size: 29px;
+            font-size: 29px;
         }
+
         p {
-          font-size: 20px;
+            font-size: 20px;
         }
 
-    .confirmed {
-      background-color: #3498db;
-    }
-    .deaths {
-      background-color: #e74c3c;
-    }
-    .recovered {
-      background-color: #2ecc71;
-    }
+        .confirmed {
+            background-color: #3498db;
+        }
 
-    .confirmed:hover, .deaths:hover, .recovered:hover {
-      transform: translateY(-4px);
-    }
+        .deaths {
+            background-color: #e74c3c;
+        }
 
+        .recovered {
+            background-color: #2ecc71;
+        }
+
+        .confirmed:hover, .deaths:hover, .recovered:hover {
+            transform: translateY(-4px);
+        }
 
 
     </style>
@@ -86,18 +90,18 @@
     <h1 class="title main">Coronavirus Dashboard</h1>
     <div class="cards">
         <div class="card confirmed">
-          <h3 id="cases">Confirmed</h3>
-          <p>{{ context.latest.confirmed }}</p>
+            <h3 id="cases">Confirmed</h3>
+            <p>{{ context.latest.confirmed }}</p>
         </div>
         <div class="card deaths">
-          <h3 id="deaths">Deaths</h3>
-          <p>{{ context.latest.deaths }}</p>
+            <h3 id="deaths">Deaths</h3>
+            <p>{{ context.latest.deaths }}</p>
         </div>
         <div class="card recovered">
-          <h3 id="recovered">Recovered</h3>
-          <p>{{ context.latest.recovered }}</p>
+            <h3 id="recovered">Recovered</h3>
+            <p>{{ context.latest.recovered }}</p>
         </div>
-      </div>
+    </div>
 
     <h2 class="title">Confirmed cases around the world:</h2>
     <div id="regions_div" style="width: 900px; height: 500px;"></div>
@@ -106,14 +110,19 @@
 
     <div id="piechart" style="width: 900px; height: 500px;"></div>
 
-    <svg id="graph-container"></svg>
+    <div id="chart_div" style="width: 100%; height: 500px;"></div>
+
+    <div id="columnchart_material" style="width: 800px; height: 500px;"></div>
+
+    <div id="table_div"></div>
+
 {% endblock %}
 
 {% block js %}
     {{ super() }}
     <script>
         google.charts.load('current', {
-            'packages': ['geochart', 'corechart'],
+            'packages': ['geochart', 'corechart', 'bar', 'table'],
             // Note: you will need to get a mapsApiKey for your project.
             // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
             'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
@@ -121,6 +130,9 @@
         google.charts.setOnLoadCallback(drawRegionsMap);
         google.charts.setOnLoadCallback(drawLineChart);
         google.charts.setOnLoadCallback(drawPieChart);
+        google.charts.setOnLoadCallback(drawAreaChart);
+        google.charts.setOnLoadCallback(drawBarChart);
+        google.charts.setOnLoadCallback(drawTable);
 
         const covid_data = JSON.parse('{{ context|tojson }}');
 
@@ -181,7 +193,7 @@
             var data = google.visualization.arrayToDataTable(temp);
 
             var options = {
-                title: 'Active cases (Worldwide)',
+                title: 'Active cases over time (Worldwide)',
                 curveType: 'function',
                 legend: {position: 'bottom'},
                 vAxis: {
@@ -197,9 +209,9 @@
         }
 
         function drawPieChart() {
-            let temp = [['Country', 'Confirmed cases']];
+            let temp = [];
 
-            for(let country in covid_data['locations']){
+            for (let country in covid_data['locations']) {
                 temp.push([country, covid_data['locations'][country]['confirmed']['latest']])
             }
 
@@ -210,7 +222,10 @@
                     return 1;
                 return 0;
             }
+
             temp.sort(compare)
+
+            temp.unshift(['Country', 'Confirmed cases'])
 
             var data = google.visualization.arrayToDataTable(temp);
 
@@ -223,85 +238,109 @@
             chart.draw(data, options);
         }
 
-        function drawsvg() {
-            const margin = 100;
-            const width = window.innerWidth - 2 * margin
-            const height = window.innerHeight - 2 * margin;
-            const svg = d3.select("#graph-container")
-                .attr("width", width + 2 * margin)
-                .attr("height", height + 2 * margin);
-            const chart = svg.append('g')
-                .attr("transform", "translate(" + margin + "," + margin + ")");
-            const xScale = d3.scaleBand()
-                .range([0, width])
-                .domain(Object.keys(covid_data.locations))
-                .padding(0.1);
-            const yScale = d3.scaleLinear()
-                .range([height, 0])
-                .domain([0, covid_data.latest.deaths]);
-            chart.append('g')
-                .call(d3.axisLeft(yScale))
-            chart.append('g')
-                .attr("transform", "translate(0," + height + ")")
-                .call(d3.axisBottom(xScale))
-                .selectAll("text")
-                .attr("y", 0)
-                .attr("x", 9)
-                .attr("dy", ".35em")
-                .attr("transform", "rotate(90)")
-                .style("text-anchor", "start");
-            chart.append('g')
-                .attr('class', 'grid')
-                .call(d3.axisLeft()
-                    .scale(yScale)
-                    .tickSize(-width, 0, 0)
-                    .tickFormat(''))
-            svg
-                .append('text')
-                .attr('class', 'label')
-                .attr('x', -(height / 2) - margin)
-                .attr('y', margin / 2.4)
-                .attr('transform', 'rotate(-90)')
-                .attr('text-anchor', 'middle')
-                .text('Deaths')
-                .attr('stroke', 'black')
-            svg.append('text')
-                .attr('class', 'label')
-                .attr('x', width / 2 + margin)
-                .attr('y', height + margin * 1.8)
-                .text('Country')
-                .attr('stroke', 'black')
-            svg.append('text')
-                .attr('class', 'title')
-                .attr('x', width / 2 + margin)
-                .attr('y', 90)
-                .text('Deaths per country')
-                .attr('stroke', 'black')
-            const barGroups = chart.selectAll()
-                .data(covid_data.locations)
-                .enter()
-                {#.append('g')#}
-                {#.attr('class', 'barContainer')#}
-                {#barGroups#}
-                .append('rect')
-                .attr('class', 'bar')
-                {#.style("fill", (_, i) => `rgb(${i * 20}, ${Math.round(i * 20 / 2)}, 200)`)#}
-                .style("fill", "steelblue")
-                {#.transition()#}
-                {#.duration(200)#}
-                {#.delay((d, i) => i * 70)#}
-                .attr('x', function (d) {
-                    return xScale(d.name);
-                })
-                .attr('x', function (d) {
-                    return yScale(d.deaths.latest);
-                })
-                .attr('height', (s) => height - Math.round(yScale(s.deaths.latest)))
-                .attr('width', xScale.bandwidth())
+        function drawAreaChart() {
+            let temp = []
+
+            for (let date in covid_data['locations']['France']['confirmed']['history']) {
+                let current_infected = covid_data['locations']['France']['confirmed']['history'][date] - (covid_data['locations']['France']['deaths']['history'][date] + covid_data['locations']['France']['recovered']['history'][date]);
+                let current_deaths = covid_data['locations']['France']['deaths']['history'][date]
+                let current_recovered = covid_data['locations']['France']['recovered']['history'][date]
+                let date_formated = date.split('/')
+                let day = date_formated[1]
+                let month = date_formated[0]
+                let year = "20" + date_formated[2]
+                date_formated = year + '-' + month + '-' + day
+                temp.push([new Date(date_formated), current_infected, current_deaths, current_recovered])
+            }
+
+            function compare(a, b) {
+                if (a[0] < b[0])
+                    return -1;
+                if (a[0] > b[0])
+                    return 1;
+                return 0;
+            }
+
+            temp.sort(compare)
+
+            temp.unshift(['Date', 'Current Infected', 'Current Deaths', 'Current Recovered'])
+
+            var data = google.visualization.arrayToDataTable(temp);
+
+            var options = {
+                title: 'Cases in France',
+                hAxis: {title: 'Number of cases', titleTextStyle: {color: '#333'}},
+                vAxis: {minValue: 0}
+            };
+
+            var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
         }
 
-        drawsvg()
+        function drawBarChart() {
+            let temp = []
 
+            for (let date in covid_data['locations']['France']['confirmed']['history']) {
+                let confirmed = covid_data['locations']['France']['confirmed']['history'][date]
+                let date_formated = date.split('/')
+                let day = date_formated[1]
+                let month = date_formated[0]
+                let year = "20" + date_formated[2]
+                date_formated = year + '-' + month + '-' + day
+                temp.push([new Date(date_formated), confirmed])
+            }
+
+            function compare(a, b) {
+                if (a[0] < b[0])
+                    return -1;
+                if (a[0] > b[0])
+                    return 1;
+                return 0;
+            }
+
+            temp.sort(compare)
+
+            let previous_value = 0
+            let actual_value = 0
+            for (let elem in temp) {
+                actual_value = temp[elem][1]
+                temp[elem][1] -= previous_value
+                previous_value = actual_value
+            }
+
+            temp.unshift(['Date', 'New cases'])
+
+            var data = google.visualization.arrayToDataTable(temp);
+
+            var options = {
+                chart: {
+                    title: 'Evolution of new cases in France',
+                }
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        }
+
+        function drawTable() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Country');
+            data.addColumn('number', 'Confirmed');
+            data.addColumn('number', 'Deaths');
+            data.addColumn('number', 'Recovered');
+            let rows = []
+            for (let country in covid_data['locations']){
+                rows.push([covid_data['locations'][country]['name'], covid_data['locations'][country]['confirmed']['latest'], covid_data['locations'][country]['deaths']['latest'], covid_data['locations'][country]['recovered']['latest']])
+            }
+            data.addRows(rows);
+
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+
+            table.draw(data, {
+                showRowNumber: false, width: '45%', height: '500', sortColumn: 1, sortAscending: false
+            });
+        }
     </script>
 
 {% endblock %}
