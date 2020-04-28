@@ -75,18 +75,44 @@
 
         function drawLineChart() {
 
-            let temp = [['Date', 'Currently Infected']]
+            let temp = []
 
-            for (let country in covid_data['locations']) {
-                temp.push([])
+            for (let date in covid_data['locations']['Afghanistan']['confirmed']['history']) {
+                let current = 0;
+                for(let country in covid_data['locations']){
+                    current += covid_data['locations'][country]['confirmed']['history'][date] - (covid_data['locations'][country]['deaths']['history'][date] + covid_data['locations'][country]['recovered']['history'][date]);
+                }
+                let date_formated = date.split('/')
+                let day = date_formated[1]
+                let month = date_formated[0]
+                let year = "20" + date_formated[2]
+                date_formated = year + '-' + month + '-' + day
+                temp.push([new Date(date_formated), current])
             }
+
+            function compare(a, b) {
+                if (a[0] < b[0])
+                    return -1;
+                if (a[0] > b[0])
+                    return 1;
+                return 0;
+            }
+
+            temp.sort(compare)
+
+            temp.unshift(['Date', 'Currently Infected'])
 
             var data = google.visualization.arrayToDataTable(temp);
 
             var options = {
-                title: 'Active cases',
+                title: 'Active cases (Worldwide)',
                 curveType: 'function',
-                legend: {position: 'bottom'}
+                legend: {position: 'bottom'},
+                vAxis: {
+                    viewWindow: {
+                        min: 0
+                    }
+                }
             }
 
             var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
