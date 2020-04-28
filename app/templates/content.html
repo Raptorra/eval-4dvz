@@ -29,6 +29,8 @@
     <h3>Confirmed cases around the world:</h3>
     <div id="regions_div" style="width: 900px; height: 500px;"></div>
 
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+
     <svg id="graph-container"></svg>
 {% endblock %}
 
@@ -36,12 +38,13 @@
     {{ super() }}
     <script>
         google.charts.load('current', {
-            'packages': ['geochart'],
+            'packages': ['geochart', 'corechart'],
             // Note: you will need to get a mapsApiKey for your project.
             // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
             'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
         });
         google.charts.setOnLoadCallback(drawRegionsMap);
+        google.charts.setOnLoadCallback(drawLineChart);
 
         const covid_data = JSON.parse('{{ context|tojson }}');
 
@@ -66,6 +69,27 @@
             };
 
             var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+            chart.draw(data, options);
+        }
+
+        function drawLineChart() {
+
+            let temp = [['Date', 'Currently Infected']]
+
+            for (let country in covid_data['locations']) {
+                temp.push([])
+            }
+
+            var data = google.visualization.arrayToDataTable(temp);
+
+            var options = {
+                title: 'Active cases',
+                curveType: 'function',
+                legend: {position: 'bottom'}
+            }
+
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
             chart.draw(data, options);
         }
@@ -129,7 +153,7 @@
                 .enter()
                 {#.append('g')#}
                 {#.attr('class', 'barContainer')#}
-            {#barGroups#}
+                {#barGroups#}
                 .append('rect')
                 .attr('class', 'bar')
                 {#.style("fill", (_, i) => `rgb(${i * 20}, ${Math.round(i * 20 / 2)}, 200)`)#}
@@ -137,13 +161,18 @@
                 {#.transition()#}
                 {#.duration(200)#}
                 {#.delay((d, i) => i * 70)#}
-                .attr('x', function(d) { return xScale(d.name); })
-                .attr('x', function(d) { return yScale(d.deaths.latest); })
+                .attr('x', function (d) {
+                    return xScale(d.name);
+                })
+                .attr('x', function (d) {
+                    return yScale(d.deaths.latest);
+                })
                 .attr('height', (s) => height - Math.round(yScale(s.deaths.latest)))
                 .attr('width', xScale.bandwidth())
         }
 
         drawsvg()
+
     </script>
 
 {% endblock %}
