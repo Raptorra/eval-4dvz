@@ -10,8 +10,15 @@ def hello():
 
     r = requests.get(url=url)
 
-    data = r.json()
-    if r.status_code != 200:
+    try:
+        data = r.json()
+        if r.status_code != 200:
+            render_template('default_error.html', context={
+                "error": {
+                    "strerror": "Error while retrieving data from api https://coronavirus-tracker-api.herokuapp.com/"
+                }
+            })
+    except BaseException:
         render_template('default_error.html', context={
             "error": {
                 "strerror": "Error while retrieving data from api https://coronavirus-tracker-api.herokuapp.com/"
@@ -26,6 +33,7 @@ def hello():
         if location.get('country') not in context.get('locations', {}):
             context['locations'][location.get('country')] = {
                 "name": location.get('country'),
+                "code": location.get('country_code'),
                 "confirmed": {
                     "latest": location.get('latest', 0),
                     "history": location.get('history', {})
@@ -47,6 +55,7 @@ def hello():
         if location.get('country') not in context.get('locations', {}):
             context['locations'][location.get('country')] = {
                 "name": location.get('country'),
+                "code": location.get('country_code'),
                 "deaths": {
                     "latest": location.get('latest', 0),
                     "history": location.get('history', {})
@@ -68,6 +77,7 @@ def hello():
         if location.get('country') not in context.get('locations', {}):
             context['locations'][location.get('country')] = {
                 "name": location.get('country'),
+                "code": location.get('country_code'),
                 "recovered": {
                     "latest": location.get('latest', 0),
                     "history": location.get('history', {})
@@ -85,7 +95,7 @@ def hello():
             context['locations'][location.get('country')]['recovered']['latest'] += location.get('latest', 0)
             context['locations'][location.get('country')]['recovered']['history'] = {x: (context['locations'][location.get('country')]['recovered']['history'][x] if x in context['locations'][location.get('country')]['recovered']['history'].keys() else 0) + location['history'][x] for x in location['history'].keys()}
 
-    return render_template('base.html', context=context)
+    return render_template('content.html', context=context)
 
 
 if __name__ == "__main__":
