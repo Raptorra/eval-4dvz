@@ -76,6 +76,10 @@
       transform: translateY(-4px);
     }
 
+    .twisted {
+        display: flex;
+        flex-direction: row;
+    }
 
 
     </style>
@@ -102,9 +106,10 @@
     <h2 class="title">Confirmed cases around the world:</h2>
     <div id="regions_div" style="width: 900px; height: 500px;"></div>
 
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
-
-    <div id="piechart" style="width: 900px; height: 500px;"></div>
+    <div class="twisted">
+        <div id="curve_chart" style="width: 900px; height: 500px"></div>
+        <div id="piechart" style="width: 900px; height: 500px;"></div>
+    </div>
 
     <svg id="graph-container"></svg>
 {% endblock %}
@@ -276,7 +281,7 @@
                 .attr('x', width / 2 + margin)
                 .attr('y', 90)
                 .text('Deaths per country')
-                .attr('stroke', 'black')
+                .attr('stroke', '#2C3E50')
             const barGroups = chart.selectAll()
                 .data(covid_data.locations)
                 .enter()
